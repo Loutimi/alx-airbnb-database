@@ -6,7 +6,7 @@ Evaluate the impact of adding indexes on query performance in the User, Booking,
 ---
 
 ## Test Setup
-1. Queries were run using ["EXPLAIN ANALYZE"].
+1. Queries were run using `EXPLAIN ANALYZE`.
 2. Performance measured before and after adding indexes.
 3. Data volume: ~10,000 rows in each table.
 
