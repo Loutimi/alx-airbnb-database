@@ -1,37 +1,63 @@
--- ======================
---  User Table: Indexes
--- ======================
+-- ============================================
+-- Performance Test: User Email Lookup
+-- ============================================
 
--- Enforce uniqueness and improve lookup speed on email
+-- Drop index if it already exists
+DROP INDEX IF EXISTS idx_user_email;
+
+-- Step 1: Run query without index (cold test)
+EXPLAIN ANALYZE
+SELECT * FROM "User"
+WHERE email = 'test@example.com';
+
+-- Step 2: Create index on email
 CREATE UNIQUE INDEX idx_user_email ON "User"(email);
 
--- Speed up joins and filtering on user_id
-CREATE INDEX idx_user_id ON "User"(user_id);
+-- Step 3: Run same query again with index
+EXPLAIN ANALYZE
+SELECT * FROM "User"
+WHERE email = 'test@example.com';
 
 
--- ==========================
---  Booking Table: Indexes
--- ==========================
 
--- Join optimization: commonly joined with Property
+-- ============================================
+-- Performance Test: Booking Table JOIN
+-- ============================================
+
+-- Drop index if exists
+DROP INDEX IF EXISTS idx_booking_property_id;
+
+-- Step 1: Join query without index
+EXPLAIN ANALYZE
+SELECT b.*
+FROM "Booking" b
+JOIN "Property" p ON b.property_id = p.property_id
+WHERE p.location = 'Lagos';
+
+-- Step 2: Create index on property_id in Booking
 CREATE INDEX idx_booking_property_id ON "Booking"(property_id);
 
--- Join optimization: commonly joined with User
-CREATE INDEX idx_booking_user_id ON "Booking"(user_id);
+-- Step 3: Run the same query again
+EXPLAIN ANALYZE
+SELECT b.*
+FROM "Booking" b
+JOIN "Property" p ON b.property_id = p.property_id
+WHERE p.location = 'Lagos';
 
--- For efficient date range queries (e.g., availability searches)
-CREATE INDEX idx_booking_dates ON "Booking"(start_date, end_date);
 
 
--- ===========================
--- Property Table: Indexes
--- ===========================
+-- ============================================
+-- Original Index Definitions (for deployment)
+-- ============================================
 
--- Join optimization
-CREATE INDEX idx_property_id ON "Property"(property_id);
+-- User Table
+CREATE INDEX IF NOT EXISTS idx_user_id ON "User"(user_id);
 
--- Filtering by city/area
-CREATE INDEX idx_property_location ON "Property"(location);
+-- Booking Table
+CREATE INDEX IF NOT EXISTS idx_booking_user_id ON "Booking"(user_id);
+CREATE INDEX IF NOT EXISTS idx_booking_dates ON "Booking"(start_date, end_date);
 
--- Filtering or sorting by price
-CREATE INDEX idx_property_price ON "Property"(pricepernight);
+-- Property Table
+CREATE INDEX IF NOT EXISTS idx_property_id ON "Property"(property_id);
+CREATE INDEX IF NOT EXISTS idx_property_location ON "Property"(location);
+CREATE INDEX IF NOT EXISTS idx_property_price ON "Property"(pricepernight);
