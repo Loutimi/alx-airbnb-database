@@ -1,4 +1,4 @@
--- Initial query: Retrieve all bookings with user, property, and payment details
+-- Initial query: Retrieve all bookings with user, property, and payment details 
 SELECT 
     Booking.booking_id,
     Booking.start_date,
@@ -23,3 +23,18 @@ INNER JOIN Property
     ON Booking.property_id = Property.property_id
 LEFT JOIN Payment 
     ON Booking.booking_id = Payment.booking_id;
+
+-- EXPLAIN ANALYZE on a query
+EXPLAIN ANALYZE
+SELECT 
+    Booking.booking_id,
+    Booking.start_date,
+    Booking.end_date,
+    Booking.total_price,
+    "User".email,
+    Property.location
+FROM Booking
+JOIN "User" ON Booking.user_id = "User".user_id
+JOIN Property ON Booking.property_id = Property.property_id
+WHERE Booking.status = 'confirmed'
+  AND Property.location = 'Lagos';
